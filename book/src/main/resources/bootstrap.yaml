@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: book
+  cloud:
+    config:
+      uri: http://localhost:8888

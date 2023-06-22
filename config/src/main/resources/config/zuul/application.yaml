@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5430/library
+    driver-class-name: org.postgresql.Driver
+    username: user
+    password: password
+    jpa:
+      hibernate:
+        ddl-auto: none
+server:
+  port: 8080
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+#zuul:
+#  routes:
+#    users:
+#key: this-is-the-key

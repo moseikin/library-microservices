@@ -1,0 +1,12 @@
+zuul:
+  routes:
+    book:
+      url: http://localhost:8081
+#    comment:
+#      url: http://localhost:8082
+#      path: /api/**
+#    auth:
+#      url: http://localhost:8083
+spring:
+  application:
+    name: zuul
