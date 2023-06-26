@@ -10,3 +10,9 @@ zuul:
 spring:
   application:
     name: zuul
+resilience4j:
+  retry:
+    configs:
+      default:
+        maxAttempts: 3
+        waitDuration: 2s

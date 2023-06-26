@@ -4,3 +4,21 @@ spring:
   cloud:
     config:
       uri: http://localhost:8888
+resilience4j:
+  timelimiter:
+    configs:
+      default:
+        timeoutDuration: 1s
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: 3
+        minimumNumberOfCalls: 3
+        slidingWindowType: COUNT_BASED
+        slowCallDurationThreshold: 1000
+        waitDurationInOpenState: 5000
+#  retry:
+#    configs:
+#      default:
+#        maxAttempts: 3
+#        waitDuration: 2s

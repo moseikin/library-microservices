@@ -29,7 +29,7 @@ public class SecurityConfig {
 //                .mvcMatchers().hasIpAddress("127.0.0.2")
 //                .and()
                 .authorizeHttpRequests()
-                .antMatchers("/getToken").permitAll()
+//                .antMatchers("/getToken").permitAll()
                 .antMatchers("/**").authenticated()
                 .and()
                 .formLogin()

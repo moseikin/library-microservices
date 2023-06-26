@@ -4,7 +4,10 @@ import com.example.gateway.dto.AuthRequestDto;
 import com.example.gateway.dto.UserDto;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.shared.Application;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.math.RandomUtils;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -15,9 +18,11 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class RequestService {
     private static final String AUTH_APP_NAME = "auth";
     private static final String GET_TOKEN_PATH = "token/getToken";
@@ -25,7 +30,19 @@ public class RequestService {
 
     private final EurekaClient eurekaClient;
 
+    /**
+     * Пример работы Resilence Retry.
+     * В конфиге переопределены параметры:
+     *         maxAttempts: 3 - максимальное количество попыток
+     *         waitDuration: 2s - время ожидания между попытками
+     * imitateServiceFailures в случайном порядке имитирует ошибки сервиса. При этом Retry до 3 раз
+     * с периодичностью в 2 секунды будет пытаться до него достучаться.
+     * Если все три раза не получится, то будет вызван метод, указанный в параметре fallbackMethod
+     */
+    @Retry(name = "default", fallbackMethod = "retryMethod")
     public String createTokenRequest(AuthRequestDto authRequestDto) {
+        imitateServiceFailures();
+
         String homePageUrl = getAuthServiceHomePageUrl();
 
         String url = UriComponentsBuilder.fromHttpUrl(homePageUrl + GET_TOKEN_PATH)
@@ -41,6 +58,20 @@ public class RequestService {
         pathVars.put("password", authRequestDto.getPassword());
 
         return new RestTemplate().exchange(url, HttpMethod.GET, httpEntity, String.class, pathVars).getBody();
+    }
+
+    private void imitateServiceFailures() {
+        if (RandomUtils.nextBoolean()) {
+            log.info("Ошибка. Должен сработать RETRY");
+            throw new IllegalStateException();
+        } else {
+            log.info("Ошибки нету");
+        }
+    }
+
+    public String retryMethod(Throwable t) {
+        log.info("Этот метод вызвался, когда все попытки не увенчались успехом");
+        return "Этот метод вызвался, когда все попытки не увенчались успехом";
     }
 
     public UserDto createUserRequest(String token) {
